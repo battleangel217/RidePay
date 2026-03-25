@@ -92,3 +92,14 @@ class GoogleSignupView(APIView):
             
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class HealthCheckView(APIView):
+    permission_classes = []
+
+    @extend_schema(
+        summary="Server Health Check",
+        description="Returns a 200 OK status to indicate that the server is up and running. Used by load balancers and deployment services.",
+        responses=inline_serializer(name='HealthCheckResponse', fields={'status': serializers.CharField()})
+    )
+    def get(self, request):
+        return Response({"status": "ok"}, status=status.HTTP_200_OK)
