@@ -7,17 +7,23 @@ import uuid
 User = get_user_model()
 
 class CustomUserCreateSerializer(UserCreateSerializer):
+    plate_number = serializers.CharField(required=False, allow_blank=True)
+    
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ("email", "username", "password", "role")
+        fields = ("email", "username", "password", "role", "plate_number")
 
     def create(self, validate_data):
         email = validate_data.get('email')
         role = validate_data.get('role')
         username = validate_data.get("username")
+        plate_number = validate_data.get("plate_number")
 
+        short_code = None
         if role == "driver":
             id = f"DRI-{str(uuid.uuid4())[4:18]}"
+            # Generate a 6 character short code for passengers to easily type in
+            short_code = str(uuid.uuid4()).replace("-", "")[:6].upper()
         else:
             id = f"PASS-{str(uuid.uuid4())[4:18]}"
 
@@ -30,7 +36,9 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             email=email,
             role=role,
             username=username,
-            id=id
+            id=id,
+            short_code=short_code,
+            plate_number=plate_number if role == "driver" else None
         )
         user.set_password(validate_data['password'])
         user.save()
@@ -48,5 +56,15 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 class CustomUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
-        fields = ("id", "username", "role", "email")
-        read_only_fields = ("id", "username", "role", "email")
+        fields = ("id", "username", "role", "email", "plate_number", "short_code", "is_approved_rider")
+        read_only_fields = ("id", "username", "role", "email", "plate_number", "short_code", "is_approved_rider")
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    user = CustomUserSerializer(read_only=True)
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user'] = CustomUserSerializer(self.user).data
+        return data

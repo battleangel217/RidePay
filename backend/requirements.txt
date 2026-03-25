@@ -1,0 +1,11 @@
+Django>=4.0,<5.0
+djangorestframework
+djoser
+requests
+python-dotenv
+psycopg2-binary
+django-cors-headers
+channels
+daphne
+drf-spectacular
+google-auth
