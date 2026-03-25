@@ -9,3 +9,4 @@ channels
 daphne
 drf-spectacular
 google-auth
+dj-database-url
