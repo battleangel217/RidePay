@@ -56,8 +56,8 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 class CustomUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
-        fields = ("id", "username", "role", "email", "plate_number", "short_code", "is_approved_rider")
-        read_only_fields = ("id", "username", "role", "email", "plate_number", "short_code", "is_approved_rider")
+        fields = ("id", "username", "role", "email", "plate_number", "short_code", "is_approved_rider", "wallet")
+        read_only_fields = ("id", "username", "role", "email", "plate_number", "short_code", "is_approved_rider", "wallet")
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
