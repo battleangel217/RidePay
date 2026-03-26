@@ -1,10 +1,11 @@
 from django.urls import path
 from .views import (
     TopUpWalletView, InterswitchWebhookView, PayRiderView, CashOutView,
-    ApproveRiderView, SetFareView, GetFareView
+    ApproveRiderView, SetFareView, GetFareView, TransactionHistoryView
 )
 
 urlpatterns = [
+    path("history/", TransactionHistoryView.as_view(), name="transaction-history"),
     path("fare/", GetFareView.as_view(), name="get-fare"),
     path("topup/", TopUpWalletView.as_view(), name="topup-wallet"),
     path("webhook/interswitch/", InterswitchWebhookView.as_view(), name="interswitch-webhook"),

@@ -1,14 +1,17 @@
 from rest_framework import status, serializers
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Q
 from drf_spectacular.utils import extend_schema, inline_serializer
 import uuid
 
 from .models import TransactionHistory, CashOut, FareSetting
 from .interswitch import interswitch_client
+from .serializers import TransactionHistorySerializer
 
 User = get_user_model()
 
@@ -336,3 +339,19 @@ class GetFareView(APIView):
     def get(self, request):
         fare = FareSetting.get_fare()
         return Response({"fare": fare}, status=status.HTTP_200_OK)
+
+class TransactionHistoryView(ListAPIView):
+    serializer_class = TransactionHistorySerializer
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Transaction History",
+        description="Retrieves a list of all transactions for the authenticated user, ordered by most recent.",
+        responses=TransactionHistorySerializer(many=True)
+    )
+    def get_queryset(self):
+        user = self.request.user
+        return TransactionHistory.objects.filter(
+            Q(sender=user) | Q(receiver=user)
+        ).order_by('-timestamp')
+
