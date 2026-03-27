@@ -1045,6 +1045,34 @@
                 }
             }
         },
+        "/api/transactions/history/": {
+            "get": {
+                "operationId": "transactions_history_list",
+                "tags": [
+                    "transactions"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TransactionHistory"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/transactions/pay/": {
             "post": {
                 "operationId": "transactions_pay_create",
@@ -1371,6 +1399,10 @@
                     "is_approved_rider": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "wallet": {
+                        "type": "integer",
+                        "readOnly": true
                     }
                 },
                 "required": [
@@ -1380,7 +1412,8 @@
                     "plate_number",
                     "role",
                     "short_code",
-                    "username"
+                    "username",
+                    "wallet"
                 ]
             },
             "CustomUserCreate": {
@@ -1521,6 +1554,10 @@
                     "is_approved_rider": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "wallet": {
+                        "type": "integer",
+                        "readOnly": true
                     }
                 }
             },
@@ -1602,6 +1639,15 @@
                     "new_email"
                 ]
             },
+            "StatusEnum": {
+                "enum": [
+                    "PENDING",
+                    "COMPLETED",
+                    "FAILED"
+                ],
+                "type": "string",
+                "description": "* `PENDING` - Pending\n* `COMPLETED` - Completed\n* `FAILED` - Failed"
+            },
             "TokenRefresh": {
                 "type": "object",
                 "properties": {
@@ -1641,6 +1687,61 @@
                 "required": [
                     "amount"
                 ]
+            },
+            "TransactionHistory": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "amount": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/StatusEnum"
+                    },
+                    "transaction_type": {
+                        "$ref": "#/components/schemas/TransactionTypeEnum"
+                    },
+                    "interswitch_ref": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 100
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "sender_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "receiver_name": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "amount",
+                    "id",
+                    "receiver_name",
+                    "sender_name",
+                    "timestamp",
+                    "transaction_type"
+                ]
+            },
+            "TransactionTypeEnum": {
+                "enum": [
+                    "TOPUP",
+                    "TRANSFER",
+                    "WITHDRAWAL"
+                ],
+                "type": "string",
+                "description": "* `TOPUP` - Top Up\n* `TRANSFER` - Transfer\n* `WITHDRAWAL` - Withdrawal"
             },
             "UpdatePlateNumberRequest": {
                 "type": "object",
