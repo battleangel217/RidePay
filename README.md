@@ -1,4 +1,5 @@
 # RidePay 🚗💳
+<img width="1354" height="675" alt="image" src="https://github.com/user-attachments/assets/0cfee6f3-3c85-4846-a2da-6024d85e85d9" />
 
 > **Seamless Digital Payments for Modern Ride-Sharing**
 
