@@ -1,9 +1,32 @@
 # RidePay 🚗💳
 <img width="1354" height="675" alt="image" src="https://github.com/user-attachments/assets/0cfee6f3-3c85-4846-a2da-6024d85e85d9" />
 
+> **Enyata x Interswitch Buildathon Submission**  
 > **Seamless Digital Payments for Modern Ride-Sharing**
 
 A full-stack, real-time payment platform that connects riders and passengers through a secure digital wallet ecosystem, powered by Interswitch.
+
+---
+
+## 🏆 Buildathon Submission Details
+*Important information for judges regarding the Enyata x Interswitch Buildathon.*
+
+- **Team Code:** `c5a056`
+- **Live URL:** `https://ridepay.vercel.app`
+- **Repository:** This single repository contains both our Frontend (`/frontend`) and Backend (`/backend`).
+
+### 🔐 Test Credentials
+To easily evaluate the platform without creating an account from scratch, please use:
+* **Passenger Account:** `passenger@test.com` | Password: `Password123!`
+* **Rider (Driver) Account:** `rider@test.com` | Password: `Password123!`
+* *(Use Interswitch sandbox test cards for evaluating the wallet funding feature)*
+
+### 🎯 Judging Criteria Alignment
+- **Problem Solved:** RidePay directly tackles the friction, safety risks, and delays of cash-based transactions in informal transit sectors.
+- **Technical Execution:** Successfully integrated **Interswitch APIs** for secure wallet top-ups and banking operations. Backend built on Django with ASGI Channels for WebSockets; Frontend built on Next.js.
+- **User Experience:** Features an intuitive "Scan-to-Pay" QR code flow for passengers and an easy-to-read, instant-feedback earnings dashboard for drivers.
+- **Innovation:** Brings instant, verifiable digital trust to everyday commuting with real-time WebSocket notifications—so drivers know they are paid instantly without needing to refresh.
+- **Completeness:** A fully working MVP complete with role-based auth, Interswitch wallet funding, real-time transfers, and driver cash-outs.
 
 ---
 
