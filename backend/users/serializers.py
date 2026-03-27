@@ -38,7 +38,8 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             username=username,
             id=id,
             short_code=short_code,
-            plate_number=plate_number if role == "driver" else None
+            plate_number=plate_number if role == "driver" else None,
+            is_active=False
         )
         user.set_password(validate_data['password'])
         user.save()

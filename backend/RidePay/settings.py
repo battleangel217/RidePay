@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'anymail',
     'djoser',
     'drf_spectacular',
     'channels',
@@ -69,7 +70,7 @@ ROOT_URLCONF = 'RidePay.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -172,6 +173,11 @@ DJOSER = {
     "LOGIN_FIELD": "email",
     "USER_ID_FIELD": "email",
     "USER_CREATE_PASSWORD_RETYPE": False,  # 👈 turn this off
+    "SEND_ACTIVATION_EMAIL": True,
+    "ACTIVATION_URL": "activate/{uid}/{token}",
+    "EMAIL": {
+        "activation": "users.emails.ActivationEmail",
+    },
     "SERIALIZERS": {
         "user_create": "users.serializers.CustomUserCreateSerializer",
         "user": "users.serializers.CustomUserSerializer",
@@ -183,3 +189,14 @@ DJOSER = {
 CORS_ALLOW_ALL_ORIGINS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GOOGLE_OAUTH_CLIENT_ID=os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+
+# Celery Configuration
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+# Email Configuration
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'anymail.backends.brevo.EmailBackend')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@ridepay.com')
+ANYMAIL = {
+    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY", "your_brevo_api_key_here"),
+}
