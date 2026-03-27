@@ -15,7 +15,7 @@ export function useSocket(
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const callbackRef = useRef(onPaymentNotification);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const reconnectAttemptsRef = useRef(0);
   const maxReconnectAttemptsRef = useRef(3); // Reduced from 5 to fail faster
 

@@ -7,11 +7,11 @@ import { Spinner } from "@/components/ui/Spinner";
 import { verifyPayment } from "@/lib/api/transactions";
 import { useUIStore } from "@/lib/store/uiStore";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 type PaymentStatus = "loading" | "success" | "error" | "idle";
 
-export default function PaymentCallbackPage() {
+function PaymentCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addToast } = useUIStore();
@@ -94,98 +94,108 @@ export default function PaymentCallbackPage() {
   }, [searchParams, router, addToast]);
 
   return (
-    <RouteGuard allowedRoles={["passenger"]}>
-      <div className="min-h-screen pb-24 px-5">
-        <div className="pt-14 pb-6">
-          <h1 className="text-xl font-bold text-app-primary">
-            Payment Verification
-          </h1>
-        </div>
-
-        <div className="flex flex-col gap-6 mt-12">
-          {status === "loading" && (
-            <div className="flex flex-col items-center gap-4">
-              <Spinner />
-              <p className="text-app-primary font-medium">
-                Verifying your payment...
-              </p>
-              <p className="text-sm text-app-secondary text-center">
-                Please wait while we confirm your transaction with Interswitch.
-              </p>
-            </div>
-          )}
-
-          {status === "success" && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-                <svg
-                  className="h-10 w-10 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <p className="text-lg font-bold text-app-primary">
-                Payment Successful
-              </p>
-              <p className="text-sm text-app-secondary text-center">
-                {message}
-              </p>
-              <p className="text-xs text-app-secondary text-center">
-                Redirecting to dashboard...
-              </p>
-            </div>
-          )}
-
-          {status === "error" && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-                <svg
-                  className="h-10 w-10 text-red-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </div>
-              <p className="text-lg font-bold text-app-primary">
-                Payment Verification Failed
-              </p>
-              <p className="text-sm text-app-secondary text-center">
-                {message}
-              </p>
-
-              <div className="flex gap-3 mt-6">
-                <Button
-                  onClick={() => router.push("/passenger/fund")}
-                  variant="secondary"
-                >
-                  Try Again
-                </Button>
-                <Button
-                  onClick={() => router.push("/passenger/dashboard")}
-                  variant="primary"
-                >
-                  Go to Dashboard
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen pb-24 px-5">
+      <div className="pt-14 pb-6">
+        <h1 className="text-xl font-bold text-app-primary">
+          Payment Verification
+        </h1>
       </div>
+
+      <div className="flex flex-col gap-6 mt-12">
+        {status === "loading" && (
+          <div className="flex flex-col items-center gap-4">
+            <Spinner />
+            <p className="text-app-primary font-medium">
+              Verifying your payment...
+            </p>
+            <p className="text-sm text-app-secondary text-center">
+              Please wait while we confirm your transaction with Interswitch.
+            </p>
+          </div>
+        )}
+
+        {status === "success" && (
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+              <svg
+                className="h-10 w-10 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <p className="text-lg font-bold text-app-primary">
+              Payment Successful
+            </p>
+            <p className="text-sm text-app-secondary text-center">{message}</p>
+            <p className="text-xs text-app-secondary text-center">
+              Redirecting to dashboard...
+            </p>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+              <svg
+                className="h-10 w-10 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
+            <p className="text-lg font-bold text-app-primary">
+              Payment Verification Failed
+            </p>
+            <p className="text-sm text-app-secondary text-center">{message}</p>
+
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={() => router.push("/passenger/fund")}
+                variant="secondary"
+              >
+                Try Again
+              </Button>
+              <Button
+                onClick={() => router.push("/passenger/dashboard")}
+                variant="primary"
+              >
+                Go to Dashboard
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function PaymentCallbackPage() {
+  return (
+    <RouteGuard allowedRoles={["passenger"]}>
+      <Suspense
+        fallback={
+          <div className="min-h-screen pb-24 px-5 flex items-center justify-center">
+            <Spinner />
+          </div>
+        }
+      >
+        <PaymentCallbackContent />
+      </Suspense>
       <BottomNav />
     </RouteGuard>
   );

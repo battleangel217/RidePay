@@ -5,6 +5,14 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "RidePay",
   description: "Campus Transport Payment Platform",
+  icons: {
+    icon: [
+      {
+        url: "/ridepay.png",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
