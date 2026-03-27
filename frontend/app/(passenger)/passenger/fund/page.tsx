@@ -3,6 +3,7 @@ import { RouteGuard } from "@/components/RouteGuard";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { SidebarNav } from "@/components/ui/SidebarNav";
 import { topUp } from "@/lib/api/transactions";
 import { useUIStore } from "@/lib/store/uiStore";
 import type { TopUpResponse } from "@/lib/types";
@@ -85,8 +86,9 @@ export default function FundWalletPage() {
 
   return (
     <RouteGuard allowedRoles={["passenger"]}>
-      <div className="min-h-screen pb-24 px-5">
-        <div className="pt-14 pb-6 flex items-center gap-4">
+      <SidebarNav />
+      <div className="min-h-screen md:ml-64 md:max-w-4xl md:mx-auto pb-24 md:pb-12 px-5 md:px-8">
+        <div className="pt-14 pb-6 md:pt-8 flex items-center gap-4">
           <button
             onClick={handleBackClick}
             type="button"
@@ -94,11 +96,13 @@ export default function FundWalletPage() {
           >
             <ArrowLeft className="w-5 h-5 text-app-secondary" />
           </button>
-          <h1 className="text-xl font-bold text-app-primary">Fund Wallet</h1>
+          <h1 className="text-xl font-bold text-app-primary md:text-2xl">
+            Fund Wallet
+          </h1>
         </div>
 
         {!paymentData ? (
-          <form onSubmit={handleFund} className="flex flex-col gap-6">
+          <form onSubmit={handleFund} className="flex flex-col gap-6 max-w-md">
             <div>
               <p className="text-sm font-medium text-app-primary mb-3">
                 Quick amounts
@@ -140,7 +144,7 @@ export default function FundWalletPage() {
             </Button>
           </form>
         ) : (
-          <div className="flex flex-col gap-6 mt-8">
+          <div className="flex flex-col gap-6 mt-8 max-w-md">
             <div className="bg-background-secondary p-6 rounded-lg border border-border">
               <p className="text-sm text-app-secondary mb-2">Amount to pay</p>
               <p className="text-3xl font-bold text-app-primary">

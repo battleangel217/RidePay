@@ -3,6 +3,7 @@ import { RiderQRCode } from "@/components/RiderQRCode";
 import { RouteGuard } from "@/components/RouteGuard";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Button } from "@/components/ui/Button";
+import { SidebarNav } from "@/components/ui/SidebarNav";
 import { updatePlateNumber } from "@/lib/api/admin";
 import { getMe } from "@/lib/api/auth";
 import { useAuthStore } from "@/lib/store/authStore";
@@ -41,9 +42,10 @@ export default function RiderProfilePage() {
 
   return (
     <RouteGuard allowedRoles={["driver"]}>
-      <div className="min-h-screen pb-24 px-5">
-        <div className="pt-14 pb-6">
-          <h1 className="text-xl font-bold">My Profile</h1>
+      <SidebarNav />
+      <div className="min-h-screen md:ml-64 md:max-w-4xl md:mx-auto pb-24 md:pb-12 px-5 md:px-8">
+        <div className="pt-14 pb-6 md:pt-8">
+          <h1 className="text-xl font-bold md:text-2xl">My Profile</h1>
         </div>
 
         {/* Approval status */}
@@ -58,14 +60,14 @@ export default function RiderProfilePage() {
 
         {/* QR Code section */}
         {user?.short_code ? (
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-6 md:max-w-lg">
             <h2 className="text-base font-semibold mb-6 text-center text-app-primary">
               Your Payment QR
             </h2>
             <RiderQRCode shortCode={user.short_code} username={user.username} />
           </div>
         ) : (
-          <div className="bg-background-secondary rounded-3xl border border-border p-6 mb-6 text-center">
+          <div className="bg-background-secondary rounded-3xl border border-border p-6 mb-6 text-center md:max-w-lg">
             <p className="text-app-secondary text-sm">
               QR code will appear once your account is approved.
             </p>
@@ -73,7 +75,7 @@ export default function RiderProfilePage() {
         )}
 
         {/* User info */}
-        <div className="bg-background-secondary rounded-3xl border border-border p-5 mb-4 space-y-3">
+        <div className="bg-background-secondary rounded-3xl border border-border p-5 mb-4 space-y-3 md:max-w-lg">
           <div>
             <p className="text-xs text-app-tertiary uppercase tracking-wide">
               Username
@@ -132,7 +134,11 @@ export default function RiderProfilePage() {
           </div>
         </div>
 
-        <Button variant="danger" onClick={handleLogout} className="w-full">
+        <Button
+          variant="danger"
+          onClick={handleLogout}
+          className="w-full md:max-w-lg"
+        >
           <LogOut className="w-4 h-4" />
           Sign Out
         </Button>

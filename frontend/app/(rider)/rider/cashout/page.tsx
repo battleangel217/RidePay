@@ -4,6 +4,7 @@ import { RouteGuard } from "@/components/RouteGuard";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { SidebarNav } from "@/components/ui/SidebarNav";
 import { getMe } from "@/lib/api/auth";
 import { cashOut } from "@/lib/api/transactions";
 import { useAuthStore } from "@/lib/store/authStore";
@@ -63,11 +64,12 @@ export default function CashOutPage() {
   if (success) {
     return (
       <RouteGuard allowedRoles={["driver"]}>
-        <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
+        <SidebarNav />
+        <div className="min-h-screen md:ml-64 md:max-w-4xl md:mx-auto flex flex-col items-center justify-center px-6 text-center py-12 md:py-0">
           <div className="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mb-6">
             <CheckCircle className="w-10 h-10 text-success" />
           </div>
-          <h2 className="text-2xl font-bold text-app-primary mb-2">
+          <h2 className="text-2xl font-bold text-app-primary mb-2 md:text-3xl">
             Cashout Initiated!
           </h2>
           <p className="text-app-secondary text-sm mb-8">
@@ -78,21 +80,25 @@ export default function CashOutPage() {
             Back to Dashboard
           </Button>
         </div>
+        <BottomNav />
       </RouteGuard>
     );
   }
 
   return (
     <RouteGuard allowedRoles={["driver"]}>
-      <div className="min-h-screen pb-24 px-5">
-        <div className="pt-14 pb-6 flex items-center gap-4">
+      <SidebarNav />
+      <div className="min-h-screen md:ml-64 md:max-w-4xl md:mx-auto pb-24 md:pb-12 px-5 md:px-8">
+        <div className="pt-14 pb-6 md:pt-8 flex items-center gap-4">
           <Link href="/rider/dashboard">
             <ArrowLeft className="w-5 h-5 text-app-secondary" />
           </Link>
-          <h1 className="text-xl font-bold text-app-primary">Cash Out</h1>
+          <h1 className="text-xl font-bold text-app-primary md:text-2xl">
+            Cash Out
+          </h1>
         </div>
 
-        <div className="bg-background-secondary rounded-2xl px-4 py-3 mb-6">
+        <div className="bg-background-secondary rounded-2xl px-4 py-3 mb-6 max-w-md">
           <p className="text-xs text-app-tertiary">Available Balance</p>
           <p className="text-2xl font-bold text-app-primary">
             ₦{balance.toLocaleString("en-NG", { minimumFractionDigits: 2 })}

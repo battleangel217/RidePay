@@ -2,6 +2,7 @@
 import { RouteGuard } from "@/components/RouteGuard";
 import { TransactionList } from "@/components/TransactionList";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { SidebarNav } from "@/components/ui/SidebarNav";
 import { getMe } from "@/lib/api/auth";
 import { getHistory } from "@/lib/api/transactions";
 import {
@@ -73,17 +74,18 @@ export default function RiderDashboard() {
 
   return (
     <RouteGuard allowedRoles={["driver"]}>
-      <div className="min-h-screen pb-24">
-        <div className="px-5 pt-14 pb-6">
+      <SidebarNav />
+      <div className="min-h-screen md:ml-64 md:max-w-6xl md:mx-auto pb-24 md:pb-12">
+        <div className="px-5 pt-14 pb-6 md:pt-8 md:px-8">
           <p className="text-sm text-app-secondary">Welcome back,</p>
-          <h1 className="text-2xl font-bold text-app-primary">
+          <h1 className="text-2xl font-bold text-app-primary md:text-3xl">
             {user?.username || "Rider"}
           </h1>
         </div>
 
         {/* Approval Banner */}
         {user && !user.is_approved_rider && (
-          <div className="mx-5 mb-4 bg-warning/20 border border-warning rounded-2xl px-4 py-3 flex items-start gap-3">
+          <div className="mx-5 md:mx-8 mb-4 bg-warning/20 border border-warning rounded-2xl px-4 py-3 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-warning">
@@ -98,41 +100,43 @@ export default function RiderDashboard() {
         )}
 
         {/* Earnings Card */}
-        <div className="px-5 mb-6">
-          <div className="bg-primary text-white rounded-3xl p-6 shadow-xl">
-            <p className="text-sm text-foreground-secondary mb-1">
-              Total Earnings
-            </p>
-            <p className="text-4xl font-bold tracking-tight mb-6">
-              ₦
-              {displayBalance.toLocaleString("en-NG", {
-                minimumFractionDigits: 2,
-              })}
-            </p>
+        <div className="px-5 md:px-8 md:grid md:grid-cols-3 md:gap-6 mb-6">
+          <div className="md:col-span-1">
+            <div className="bg-primary text-white rounded-3xl p-6 shadow-xl">
+              <p className="text-sm text-foreground-secondary mb-1">
+                Total Earnings
+              </p>
+              <p className="text-4xl font-bold tracking-tight mb-6">
+                ₦
+                {displayBalance.toLocaleString("en-NG", {
+                  minimumFractionDigits: 2,
+                })}
+              </p>
+              <Link
+                href="/rider/cashout"
+                className={`inline-flex items-center gap-2 bg-white text-black rounded-2xl px-5 py-2.5 text-sm font-semibold transition-colors ${!user?.is_approved_rider ? "opacity-50 pointer-events-none" : "hover:bg-gray-100"}`}
+              >
+                <Banknote className="w-4 h-4" />
+                Cash Out
+              </Link>
+            </div>
+          </div>
+
+          {/* My QR link */}
+          <div className="mt-6 md:mt-0 md:col-span-2">
             <Link
-              href="/rider/cashout"
-              className={`inline-flex items-center gap-2 bg-white text-black rounded-2xl px-5 py-2.5 text-sm font-semibold transition-colors ${!user?.is_approved_rider ? "opacity-50 pointer-events-none" : "hover:bg-gray-100"}`}
+              href="/rider/profile"
+              className="flex items-center justify-between bg-background-secondary rounded-3xl px-6 py-4 shadow-sm border border-border h-full"
             >
-              <Banknote className="w-4 h-4" />
-              Cash Out
+              <p className="font-medium text-app-primary">View My QR Code</p>
+              <ChevronRight className="w-5 h-5 text-app-tertiary" />
             </Link>
           </div>
         </div>
 
-        {/* My QR link */}
-        <div className="px-5 mb-6">
-          <Link
-            href="/rider/profile"
-            className="flex items-center justify-between bg-background-secondary rounded-3xl px-6 py-4 shadow-sm border border-border"
-          >
-            <p className="font-medium text-app-primary">View My QR Code</p>
-            <ChevronRight className="w-5 h-5 text-app-tertiary" />
-          </Link>
-        </div>
-
         {/* Transactions */}
-        <div className="px-5">
-          <h2 className="text-base font-semibold text-app-primary mb-4">
+        <div className="px-5 md:px-8">
+          <h2 className="text-base font-semibold text-app-primary mb-4 md:text-lg">
             Payment History
           </h2>
           <TransactionList loading={loading} />
