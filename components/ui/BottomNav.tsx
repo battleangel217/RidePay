@@ -27,7 +27,7 @@ export function BottomNav() {
   if (!links.length) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around items-center h-16 px-2 z-40 safe-area-bottom">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around items-center h-16 px-2 z-40 safe-area-bottom">
       {links.map(({ href, icon: Icon, label }) => {
         const active = pathname === href;
         return (
