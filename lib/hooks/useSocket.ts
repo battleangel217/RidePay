@@ -27,7 +27,11 @@ export function useSocket(
     });
 
     return () => {
-      socketRef.current?.disconnect();
+      if (socketRef.current) {
+        if (onPaymentReceived) socketRef.current.off("payment_received", onPaymentReceived);
+        if (onPaymentSent) socketRef.current.off("payment_sent", onPaymentSent);
+        socketRef.current.disconnect();
+      }
     };
   }, [onPaymentReceived, onPaymentSent]);
 

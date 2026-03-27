@@ -51,7 +51,10 @@ export const useAuthStore = create<AuthState>((set) => ({
           const user = JSON.parse(userStr);
           set({ user, accessToken: access, refreshToken: refresh });
         } catch {
-          // ignore
+          // Corrupted data — clear it so the user isn't stuck
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          localStorage.removeItem("user");
         }
       }
     }

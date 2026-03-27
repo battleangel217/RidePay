@@ -56,7 +56,7 @@ export default function RiderDashboard() {
       getMe().then(({ data: me }) => {
         setUser(me);
         if (me.wallet_balance !== undefined) setBalance(me.wallet_balance);
-      }).catch(() => {});
+      }).catch((err) => console.error("Failed to refresh balance after payment:", err));
     }
   );
 

@@ -33,7 +33,10 @@ export default function ScanPage() {
         scanner.render(
           (decodedText: string) => {
             scanner.clear().catch(() => {});
-            router.push(`/passenger/pay?code=${encodeURIComponent(decodedText.trim().toUpperCase())}`);
+            const code = decodedText.trim().toUpperCase();
+            // Validate: expect 4-10 alphanumeric characters
+            if (!/^[A-Z0-9]{4,10}$/.test(code)) return;
+            router.push(`/passenger/pay?code=${encodeURIComponent(code)}`);
           },
           () => {}
         );
