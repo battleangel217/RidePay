@@ -1,13 +1,14 @@
 from djoser import email
+import threading
 from .tasks import send_activation_email_task
 
 
 class ActivationEmail(email.ActivationEmail):
     def send(self, to, *args, **kwargs):
-        # Compile context and queue to Celery instead of sending synchronously.
+        # Compile context
         context = self.get_context_data()
 
-        # Only pass serializable components to Celery.
+        # Extract components
         uid = context.get('uid')
         token = context.get('token')
         activation_url = context.get('url')
@@ -16,10 +17,11 @@ class ActivationEmail(email.ActivationEmail):
         # Email target
         user_email = to[0]
 
-        send_activation_email_task.delay(
-            user_email=user_email,
-            uid=uid,
-            token=token,
-            activation_url=activation_url,
-            site_name=site_name
-        )
+        # Use threading to trigger the API request without blocking the user response
+        threading.Thread(target=send_activation_email_task, kwargs={
+            'user_email': user_email,
+            'uid': uid,
+            'token': token,
+            'activation_url': activation_url,
+            'site_name': "RidePay"
+        }).start()
