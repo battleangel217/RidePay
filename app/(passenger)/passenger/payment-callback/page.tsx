@@ -177,7 +177,7 @@ export default function PaymentCallbackPage() {
                 </Button>
                 <Button
                   onClick={() => router.push("/passenger/dashboard")}
-                  variant="outline"
+                  variant="primary"
                 >
                   Go to Dashboard
                 </Button>
