@@ -17,13 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from users.views import HealthCheckView
+from users.views import HealthCheckView, ActivateAccountView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/health/', HealthCheckView.as_view(), name='health'),
+    # This captures the activation link directly on the backend to avoid needing a frontend middleman
+    path('activate/<str:uid>/<str:token>/', ActivateAccountView.as_view(), name='activate-account'),
     path('api/', include([
         path('auth/', include('djoser.urls')),
         path('auth/', include('djoser.urls.jwt')),

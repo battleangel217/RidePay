@@ -11,7 +11,29 @@ from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import CustomUserSerializer
 
+from djoser.utils import decode_uid
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import render
+
 User = get_user_model()
+
+class ActivateAccountView(APIView):
+    permission_classes = []
+
+    @extend_schema(exclude=True)
+    def get(self, request, uid, token):
+        try:
+            user_id = decode_uid(uid)
+            user = User.objects.get(pk=user_id)
+        except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            return render(request, 'account_activated.html')
+        else:
+            return render(request, 'activation_failed.html')
 
 class UpdatePlateNumberView(APIView):
     permission_classes = [IsAuthenticated]
