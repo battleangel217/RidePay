@@ -1,35 +1,41 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useAuthStore } from "@/lib/store/authStore";
-import { useWalletStore } from "@/lib/store/walletStore";
-import { useUIStore } from "@/lib/store/uiStore";
+import { RouteGuard } from "@/components/RouteGuard";
+import { TransactionList } from "@/components/TransactionList";
+import { BottomNav } from "@/components/ui/BottomNav";
 import { getMe } from "@/lib/api/auth";
 import { getHistory } from "@/lib/api/transactions";
-import { useSocket } from "@/lib/hooks/useSocket";
-import { RouteGuard } from "@/components/RouteGuard";
-import { BottomNav } from "@/components/ui/BottomNav";
-import { TransactionList } from "@/components/TransactionList";
+import {
+  useSocket,
+  type PaymentNotificationPayload,
+} from "@/lib/hooks/useSocket";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useUIStore } from "@/lib/store/uiStore";
+import { useWalletStore } from "@/lib/store/walletStore";
 import { AlertTriangle, Banknote, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function RiderDashboard() {
   const { user, setUser } = useAuthStore();
-  const { setTransactions, setBalance, prependTransaction, balance } = useWalletStore();
+  const { setTransactions, setBalance, prependTransaction, balance } =
+    useWalletStore();
   const { addToast } = useUIStore();
   const [loading, setLoading] = useState(true);
 
-  const displayBalance = user?.wallet_balance !== undefined ? user.wallet_balance : balance;
+  const displayBalance = user?.wallet !== undefined ? user.wallet : balance;
 
   useEffect(() => {
     (async () => {
       try {
         const { data: me } = await getMe();
         setUser(me);
-        if (me.wallet_balance !== undefined) setBalance(me.wallet_balance);
+        if (me.wallet !== undefined) setBalance(me.wallet);
         try {
           const { data: history } = await getHistory();
           setTransactions(history);
-        } catch {/* history may not be available yet */}
+        } catch {
+          /* history may not be available yet */
+        }
       } catch {
         addToast("error", "Failed to load profile.");
       } finally {
@@ -39,52 +45,69 @@ export default function RiderDashboard() {
   }, [setUser, setTransactions, setBalance, addToast]);
 
   // Real-time payment notifications via Socket.IO
-  useSocket(
-    (data) => {
-      // NOTE: shape of payment_received event assumed
-      const payment = data as { amount: number; id: string; description: string; created_at: string };
-      addToast("success", `Payment received: ₦${payment.amount?.toLocaleString() || ""}`);
-      prependTransaction({
-        id: payment.id || String(Date.now()),
-        type: "payment",
-        amount: payment.amount || 0,
-        description: payment.description || "Payment received",
-        created_at: payment.created_at || new Date().toISOString(),
-        status: "completed",
-      });
-      // Refresh balance
-      getMe().then(({ data: me }) => {
+  useSocket((data: PaymentNotificationPayload) => {
+    const { amount, id, description, created_at } = data;
+    addToast(
+      "success",
+      `Payment received: ₦${amount?.toLocaleString() || "0"}`,
+    );
+    prependTransaction({
+      id: parseInt(id, 10) || Date.now(),
+      amount: amount || 0,
+      status: "COMPLETED",
+      transaction_type: "PAYMENT",
+      interswitch_ref: null,
+      timestamp: created_at || new Date().toISOString(),
+      receiver_name: user?.username || "You",
+    });
+    // Refresh balance
+    getMe()
+      .then(({ data: me }) => {
         setUser(me);
-        if (me.wallet_balance !== undefined) setBalance(me.wallet_balance);
-      }).catch((err) => console.error("Failed to refresh balance after payment:", err));
-    }
-  );
+        if (me.wallet !== undefined) setBalance(me.wallet);
+      })
+      .catch((err) =>
+        console.error("Failed to refresh balance after payment:", err),
+      );
+  });
 
   return (
     <RouteGuard allowedRoles={["driver"]}>
       <div className="min-h-screen pb-24">
         <div className="px-5 pt-14 pb-6">
-          <p className="text-sm text-gray-500">Welcome back,</p>
-          <h1 className="text-2xl font-bold text-gray-900">{user?.username || "Rider"}</h1>
+          <p className="text-sm text-app-secondary">Welcome back,</p>
+          <h1 className="text-2xl font-bold text-app-primary">
+            {user?.username || "Rider"}
+          </h1>
         </div>
 
         {/* Approval Banner */}
         {user && !user.is_approved_rider && (
-          <div className="mx-5 mb-4 bg-yellow-50 border border-yellow-200 rounded-2xl px-4 py-3 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+          <div className="mx-5 mb-4 bg-warning/20 border border-warning rounded-2xl px-4 py-3 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-yellow-800">Pending Approval</p>
-              <p className="text-xs text-yellow-700 mt-0.5">Your account is awaiting admin approval. You cannot receive payments yet.</p>
+              <p className="text-sm font-semibold text-warning">
+                Pending Approval
+              </p>
+              <p className="text-xs text-warning/80 mt-0.5">
+                Your account is awaiting admin approval. You cannot receive
+                payments yet.
+              </p>
             </div>
           </div>
         )}
 
         {/* Earnings Card */}
         <div className="px-5 mb-6">
-          <div className="bg-black text-white rounded-3xl p-6 shadow-xl">
-            <p className="text-sm text-gray-400 mb-1">Total Earnings</p>
+          <div className="bg-primary text-white rounded-3xl p-6 shadow-xl">
+            <p className="text-sm text-foreground-secondary mb-1">
+              Total Earnings
+            </p>
             <p className="text-4xl font-bold tracking-tight mb-6">
-              ₦{displayBalance.toLocaleString("en-NG", { minimumFractionDigits: 2 })}
+              ₦
+              {displayBalance.toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+              })}
             </p>
             <Link
               href="/rider/cashout"
@@ -98,22 +121,21 @@ export default function RiderDashboard() {
 
         {/* My QR link */}
         <div className="px-5 mb-6">
-          <Link href="/rider/profile" className="flex items-center justify-between bg-white rounded-3xl px-6 py-4 shadow-sm border border-gray-100">
-            <p className="font-medium text-gray-900">View My QR Code</p>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+          <Link
+            href="/rider/profile"
+            className="flex items-center justify-between bg-background-secondary rounded-3xl px-6 py-4 shadow-sm border border-border"
+          >
+            <p className="font-medium text-app-primary">View My QR Code</p>
+            <ChevronRight className="w-5 h-5 text-app-tertiary" />
           </Link>
         </div>
 
         {/* Transactions */}
         <div className="px-5">
-          <h2 className="text-base font-semibold mb-4">Payment History</h2>
-          {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-2xl animate-pulse" />)}
-            </div>
-          ) : (
-            <TransactionList />
-          )}
+          <h2 className="text-base font-semibold text-app-primary mb-4">
+            Payment History
+          </h2>
+          <TransactionList loading={loading} />
         </div>
       </div>
       <BottomNav />

@@ -1,10 +1,10 @@
 "use client";
-import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { resetPasswordConfirm } from "@/lib/api/auth";
 import { useUIStore } from "@/lib/store/uiStore";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 function ResetContent() {
   const router = useRouter();
@@ -32,10 +32,21 @@ function ResetContent() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold mb-6">Set new password</h1>
+        <h1 className="text-2xl font-bold text-app-primary mb-6">
+          Set new password
+        </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input label="New Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
-          <Button type="submit" loading={loading} className="w-full mt-2">Reset Password</Button>
+          <Input
+            label="New Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
+          <Button type="submit" loading={loading} className="w-full mt-2">
+            Reset Password
+          </Button>
         </form>
       </div>
     </div>

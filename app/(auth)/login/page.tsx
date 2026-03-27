@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { login } from "@/lib/api/auth";
 import { useAuthStore } from "@/lib/store/authStore";
 import { useUIStore } from "@/lib/store/uiStore";
-import { login } from "@/lib/api/auth";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,12 +22,15 @@ export default function LoginPage() {
     try {
       const { data } = await login(email, password);
       setAuth(data.user, data.access, data.refresh);
-      const redirect = data.user.role === "passenger" ? "/passenger/dashboard" : "/rider/dashboard";
+      const redirect =
+        data.user.role === "passenger"
+          ? "/passenger/dashboard"
+          : "/rider/dashboard";
       router.replace(redirect);
     } catch (err: unknown) {
       const message =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-        "Invalid credentials. Please try again.";
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail || "Invalid credentials. Please try again.";
       addToast("error", message);
     } finally {
       setLoading(false);
@@ -38,8 +41,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 mt-2 text-sm">Sign in to RidePay</p>
+          <h1 className="text-3xl font-bold text-app-primary">Welcome back</h1>
+          <p className="text-app-secondary mt-2 text-sm">Sign in to RidePay</p>
         </div>
 
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
@@ -62,7 +65,10 @@ export default function LoginPage() {
             autoComplete="current-password"
           />
           <div className="flex justify-end">
-            <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-black">
+            <Link
+              href="/forgot-password"
+              className="text-xs text-success hover:text-success/80"
+            >
               Forgot password?
             </Link>
           </div>
@@ -71,9 +77,12 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-app-secondary mt-6">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-medium text-black hover:underline">
+          <Link
+            href="/signup"
+            className="font-medium text-success hover:text-success/80"
+          >
             Sign up
           </Link>
         </p>

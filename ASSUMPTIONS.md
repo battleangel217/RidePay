@@ -4,15 +4,29 @@ This document captures assumptions made while building the frontend, where the b
 
 ## Auth & Users
 
-- **JWT prefix**: The Authorization header uses `JWT <token>` (not `Bearer`) as is standard with `djoser` + `djangorestframework-simplejwt`.
-- **Login response**: `POST /api/auth/jwt/create/` returns `{ access, refresh, user }`. The `user` object includes `role`, `is_approved_rider`, `short_code`, `plate_number`, and `wallet_balance`. If the backend does not return `user` inline, a follow-up call to `GET /api/auth/users/me/` is made.
-- **`wallet_balance` field**: Assumed to be included on the User object returned by `/api/auth/users/me/`. If not present, the wallet balance from the local Zustand store is used.
-- **`short_code` field**: Assumed to be a 6-character alphanumeric string returned on the User object for drivers. Used to generate the QR code.
+- **User object** (`GET /api/auth/users/me/`): Returns a User object with the following fields:
+  - `id` (string): Unique user ID
+  - `username` (string): Username
+  - `role` (string): User role (`"driver"` or `"passenger"`)
+  - `email` (string): User email
+  - `plate_number` (string | null): Vehicle plate number (for drivers)
+  - `short_code` (string | null): 6-character code for generating QR (for approved drivers)
+  - `is_approved_rider` (boolean): Whether the driver is approved to receive payments
+  - `wallet` (number): Wallet balance in Naira
+- **`short_code` field**: A 6-character alphanumeric string returned on the User object for drivers. Used to generate the QR code.
 - **Google OAuth**: `POST /api/users/google/` accepts `{ token }` (Google ID token) and returns `{ access, refresh, user }`. Google Sign-In UI is not yet implemented in the frontend — the API function is defined but the button is not wired up.
 
 ## Transactions
 
-- **Transaction history**: Assumed endpoint `GET /api/transactions/history/` returns `Transaction[]`. This endpoint is not in the current swagger. If it 404s, the frontend silently ignores the error and shows an empty history.
+- **Transaction history**: `GET /api/transactions/history/` returns `Transaction[]` with the following structure:
+  - `id` (number): Unique transaction ID
+  - `amount` (number): Transaction amount
+  - `status` (string): Transaction status (e.g., `"PENDING"`, `"COMPLETED"`, `"FAILED"`)
+  - `transaction_type` (string): Type of transaction (e.g., `"TOPUP"`, `"PAYMENT"`, `"TRANSFER"`, `"CASHOUT"`)
+  - `interswitch_ref` (string | null): Interswitch reference code (e.g., `"TOPUP-d76156deb6"`)
+  - `timestamp` (string): ISO 8601 formatted timestamp (e.g., `"2026-03-27T19:35:38.812567Z"`)
+  - `sender_name` (string, optional): Name of the sender (for transfer transactions)
+  - `receiver_name` (string, optional): Name of the receiver (for applicable transactions)
 - **Top-up response**: `POST /api/transactions/topup/` is assumed to return `{ reference, payment_url?, ... }`. If `payment_url` is present, the user is redirected there (for Interswitch-hosted checkout). Otherwise, the `reference` is surfaced for use with the Interswitch inline JS SDK. The exact Interswitch integration flow depends on the SDK version the backend configures.
 - **Pay rider**: `POST /api/transactions/pay/` accepts `{ code, amount }`. The `amount` is the current fare fetched from `GET /api/transactions/fare/`.
 - **Cashout**: `POST /api/transactions/cashout/` accepts `{ amount, account_number, bank_code }`.
@@ -26,9 +40,11 @@ This document captures assumptions made while building the frontend, where the b
 
 ## WebSocket / Real-time
 
-- **Socket.IO**: The backend is assumed to expose a Socket.IO server at `NEXT_PUBLIC_SOCKET_URL`. Authentication is via `{ auth: { token } }` on connection.
-- **Event names**: `payment_received` and `payment_sent` are assumed event names. These must be verified and updated to match the actual backend event names.
-- **Event payload**: The `payment_received` event is assumed to carry `{ id, amount, description, created_at }`.
+- **Django Channels**: The backend exposes a WebSocket endpoint at `NEXT_PUBLIC_SOCKET_URL/ws/notifications/`. Authentication is via JWT token in the query string (`?token=<access_token>`).
+- **WebSocket URL**: The frontend converts HTTP/HTTPS URLs to WS/WSS. For example, `https://ridepay.onrender.com` becomes `wss://ridepay.onrender.com/ws/notifications/`.
+- **Event names**: Backend sends `payment_notification` messages as JSON payloads.
+- **Event payload**: Messages are JSON with structure: `{ type: "payment_notification", message: string, amount: number, id: string, description?: string, created_at: string }`.
+- **Socket features**: The implementation includes automatic reconnection with exponential backoff (1s to 5s), max 5 reconnection attempts, and proper cleanup on disconnect.
 
 ## Middleware & Auth Guard
 

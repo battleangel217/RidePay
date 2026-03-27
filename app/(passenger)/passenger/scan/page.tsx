@@ -1,21 +1,45 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { RouteGuard } from "@/components/RouteGuard";
 import { Button } from "@/components/ui/Button";
-import { X, Keyboard } from "lucide-react";
+import { Keyboard, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export default function ScanPage() {
   const router = useRouter();
   const scannerRef = useRef<{ clear: () => Promise<void> } | null>(null);
+  const isCleaningRef = useRef(false);
   const [scannerStarted, setScannerStarted] = useState(false);
   const [cameraError, setCameraError] = useState("");
   const [manualMode, setManualMode] = useState(false);
   const [manualCode, setManualCode] = useState("");
 
+  const clearScanner = async () => {
+    if (isCleaningRef.current || !scannerRef.current) return;
+    isCleaningRef.current = true;
+    try {
+      await scannerRef.current.clear();
+    } catch (err) {
+      // Silently ignore state transition errors
+    } finally {
+      scannerRef.current = null;
+      isCleaningRef.current = false;
+    }
+  };
+
+  // Cleanup camera on unmount
   useEffect(() => {
-    if (manualMode) return;
+    return () => {
+      clearScanner();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (manualMode) {
+      clearScanner();
+      return;
+    }
 
     let stopped = false;
 
@@ -26,19 +50,25 @@ export default function ScanPage() {
 
         const scanner = new Html5QrcodeScanner(
           "qr-reader",
-          { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true },
-          false
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            rememberLastUsedCamera: true,
+          },
+          false,
         );
 
         scanner.render(
           (decodedText: string) => {
-            scanner.clear().catch(() => {});
             const code = decodedText.trim().toUpperCase();
             // Validate: expect 4-10 alphanumeric characters
             if (!/^[A-Z0-9]{4,10}$/.test(code)) return;
+
+            // Stop scanner before navigating
+            clearScanner();
             router.push(`/passenger/pay?code=${encodeURIComponent(code)}`);
           },
-          () => {}
+          () => {},
         );
 
         scannerRef.current = scanner;
@@ -53,9 +83,9 @@ export default function ScanPage() {
 
     return () => {
       stopped = true;
-      scannerRef.current?.clear().catch(() => {});
+      clearScanner();
     };
-  }, [router, manualMode]);
+  }, [manualMode]);
 
   if (manualMode) {
     return (
@@ -64,7 +94,8 @@ export default function ScanPage() {
           <div className="w-full max-w-sm">
             <h2 className="text-xl font-bold mb-2">Enter Rider Code</h2>
             <p className="text-gray-500 text-sm mb-6">
-              {cameraError || "Type the 6-character code from the rider's card."}
+              {cameraError ||
+                "Type the 6-character code from the rider's card."}
             </p>
             <input
               autoFocus
@@ -82,8 +113,11 @@ export default function ScanPage() {
               Pay Rider
             </Button>
             <button
-              onClick={() => { setManualMode(false); setCameraError(""); }}
-              className="mt-4 w-full text-center text-sm text-gray-500 hover:text-black"
+              onClick={() => {
+                setManualMode(false);
+                setCameraError("");
+              }}
+              className="mt-4 w-full text-center text-sm text-success hover:text-success/80"
             >
               Try camera again
             </button>
@@ -117,7 +151,9 @@ export default function ScanPage() {
           </p>
           <div id="qr-reader" className="w-full max-w-xs" />
           {!scannerStarted && (
-            <div className="mt-8 animate-pulse text-white/40 text-sm">Starting camera...</div>
+            <div className="mt-8 animate-pulse text-white/40 text-sm">
+              Starting camera...
+            </div>
           )}
         </div>
 

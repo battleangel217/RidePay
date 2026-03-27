@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { activate, resendActivation } from "@/lib/api/auth";
 import { useUIStore } from "@/lib/store/uiStore";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 import { Mail } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 function ActivateContent() {
   const router = useRouter();
@@ -56,23 +56,47 @@ function ActivateContent() {
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
-            <Mail className="w-8 h-8 text-blue-600" />
+          <div className="w-16 h-16 bg-primary/20 rounded-3xl flex items-center justify-center mx-auto mb-4">
+            <Mail className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Check your email</h1>
-          {email && <p className="text-gray-500 mt-2 text-sm">We sent an activation link to <strong>{email}</strong></p>}
+          <h1 className="text-2xl font-bold text-app-primary">
+            Check your email
+          </h1>
+          {email && (
+            <p className="text-app-secondary mt-2 text-sm">
+              We sent an activation link to <strong>{email}</strong>
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleActivate} className="flex flex-col gap-4">
-          <Input label="User ID (uid)" value={uid} onChange={(e) => setUid(e.target.value)} placeholder="Paste uid from email link" required />
-          <Input label="Token" value={token} onChange={(e) => setToken(e.target.value)} placeholder="Paste token from email link" required />
-          <Button type="submit" loading={loading} className="w-full mt-2">Activate Account</Button>
+          <Input
+            label="User ID (uid)"
+            value={uid}
+            onChange={(e) => setUid(e.target.value)}
+            placeholder="Paste uid from email link"
+            required
+          />
+          <Input
+            label="Token"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder="Paste token from email link"
+            required
+          />
+          <Button type="submit" loading={loading} className="w-full mt-2">
+            Activate Account
+          </Button>
         </form>
 
         {email && (
-          <p className="text-center text-sm text-gray-500 mt-4">
+          <p className="text-center text-sm text-app-secondary mt-4">
             Didn&apos;t get the email?{" "}
-            <button onClick={handleResend} disabled={resending} className="font-medium text-black hover:underline disabled:opacity-50">
+            <button
+              onClick={handleResend}
+              disabled={resending}
+              className="font-medium text-success hover:text-success/80 disabled:opacity-50"
+            >
               {resending ? "Sending..." : "Resend"}
             </button>
           </p>

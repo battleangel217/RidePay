@@ -8,7 +8,7 @@ export interface User {
   plate_number: string | null;
   short_code: string | null;
   is_approved_rider: boolean;
-  wallet_balance?: number; // NOTE: not in current swagger, assumed added
+  wallet: number; // Wallet balance from GET /api/auth/users/me/
 }
 
 export interface LoginResponse {
@@ -23,25 +23,28 @@ export interface GoogleSignupResponse {
   user: User;
 }
 
-// NOTE: transaction history endpoint not in swagger yet.
-// Assumed: GET /api/transactions/history/ returns Transaction[]
+// Transaction from GET /api/transactions/history/
 export interface Transaction {
-  id: string;
-  type: "topup" | "payment" | "cashout";
+  id: number;
   amount: number;
-  description: string;
-  created_at: string;
-  status: "pending" | "completed" | "failed";
+  status: string; // "PENDING", "COMPLETED", "FAILED", etc.
+  transaction_type: string; // "TOPUP", "PAYMENT", "CASHOUT", "TRANSFER", etc.
+  interswitch_ref: string | null;
+  timestamp: string; // ISO 8601 format
+  receiver_name?: string;
+  sender_name?: string;
 }
 
 export interface GetFareResponse {
   fare: number;
 }
 
-// NOTE: topup response not documented in swagger.
-// Assumed: POST /api/transactions/topup/ returns { reference, ... } for Interswitch SDK
+// POST /api/transactions/topup/ response for Interswitch Webpay initialization
 export interface TopUpResponse {
-  reference?: string;
-  payment_url?: string;
-  [key: string]: unknown;
+  amount: number; // Amount in kobo
+  transaction_ref: string; // e.g., "TOPUP-51577e5511"
+  customer_id: string; // e.g., "PASS-5e33-8e86-45a9"
+  customer_name: string; // e.g., "emma"
+  customer_email: string; // e.g., "emmanuelekopimo@gmail.com"
+  message: string; // "Use these details to initialize Interswitch Webpay on the frontend"
 }

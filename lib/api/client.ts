@@ -1,7 +1,8 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const AUTH_SCHEME = "JWT";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://ridepay.onrender.com";
+const AUTH_SCHEME = "Bearer";
 
 const client = axios.create({
   baseURL: API_URL,
@@ -22,10 +23,16 @@ client.interceptors.response.use(
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-      const refresh = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+      const refresh =
+        typeof window !== "undefined"
+          ? localStorage.getItem("refresh_token")
+          : null;
       if (refresh) {
         try {
-          const { data } = await axios.post(`${API_URL}/api/auth/jwt/refresh/`, { refresh });
+          const { data } = await axios.post(
+            `${API_URL}/api/auth/jwt/refresh/`,
+            { refresh },
+          );
           localStorage.setItem("access_token", data.access);
           original.headers.Authorization = `${AUTH_SCHEME} ${data.access}`;
           return client(original);
@@ -37,7 +44,7 @@ client.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default client;
