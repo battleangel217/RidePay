@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const AUTH_SCHEME = "JWT";
 
 const client = axios.create({
   baseURL: API_URL,
@@ -10,7 +11,7 @@ const client = axios.create({
 client.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("access_token");
-    if (token) config.headers.Authorization = `JWT ${token}`;
+    if (token) config.headers.Authorization = `${AUTH_SCHEME} ${token}`;
   }
   return config;
 });
@@ -26,7 +27,7 @@ client.interceptors.response.use(
         try {
           const { data } = await axios.post(`${API_URL}/api/auth/jwt/refresh/`, { refresh });
           localStorage.setItem("access_token", data.access);
-          original.headers.Authorization = `JWT ${data.access}`;
+          original.headers.Authorization = `${AUTH_SCHEME} ${data.access}`;
           return client(original);
         } catch {
           localStorage.removeItem("access_token");

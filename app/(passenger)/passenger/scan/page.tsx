@@ -73,7 +73,7 @@ export default function ScanPage() {
             />
             <Button
               className="w-full"
-              disabled={manualCode.length < 4}
+              disabled={manualCode.length < 6}
               onClick={() => router.push(`/passenger/pay?code=${manualCode}`)}
             >
               Pay Rider

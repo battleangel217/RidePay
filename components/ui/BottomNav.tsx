@@ -34,7 +34,7 @@ export function BottomNav() {
         const active = pathname === href;
         return (
           <Link
-            key={`${href}-${label}`}
+            key={href}
             href={href}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${active ? "text-black" : "text-gray-400"}`}
           >

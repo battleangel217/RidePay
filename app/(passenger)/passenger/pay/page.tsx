@@ -90,7 +90,7 @@ function PayContent() {
           required
         />
         <p className="text-xs text-gray-400">Enter the 6-character code shown on the rider&apos;s QR card.</p>
-        <Button type="submit" loading={loading} className="w-full mt-4" disabled={code.length < 4}>
+        <Button type="submit" loading={loading} className="w-full mt-4" disabled={code.length < 6}>
           Pay ₦{fare?.toLocaleString() ?? "..."}
         </Button>
       </form>
